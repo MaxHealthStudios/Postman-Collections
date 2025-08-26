@@ -1,0 +1,1447 @@
+{
+	"info": {
+		"_postman_id": "4c3b2772-3f61-4bd9-ac8f-152279e37258",
+		"name": "Trello API",
+		"description": "To use this collection, you need to fix the variables \"api_key\" and \"token\" via [API Introduction](https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/). This collection stores arrays as varialbes for more advanced requests-chaining.\n\n[API documentation](https://developer.atlassian.com/cloud/trello/rest/api-group-actions/#api-group-actions)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41957911"
+	},
+	"item": [
+		{
+			"name": "Boards Management",
+			"item": [
+				{
+					"name": "Get all boards",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", () => pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", () => pm.response.to.be.json)",
+									"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/members/:memberId/boards?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"members",
+								":memberId",
+								"boards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "memberId",
+									"value": "me"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"",
+									"pm.test(\"Response has board ID\", function() {",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"let nameQuery = \"Postman Board \" + (idArray.length + 1)",
+									"",
+									"pm.request.url.query.upsert({",
+									"    key: \"name\",",
+									"    value: nameQuery",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards?key={{api_key}}&token={{token}}&name=Postman Board",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Postman Board"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rename a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Renamed correctly\", pm.expect(pm.response.json().name).to.equal(\"Renamed Board\"))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards/:boardId?key={{api_key}}&token={{token}}&name=Renamed Board",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards",
+								":boardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Renamed Board"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{last_board_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.pop()",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})",
+									"",
+									"pm.test(\"Response is JSON\", () => pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards/:boardId?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards",
+								":boardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{last_board_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The idea here is to create, rename and delete boards, while storing IDs in an array variable."
+		},
+		{
+			"name": "Lists Management",
+			"item": [
+				{
+					"name": "Create empty board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"",
+									"pm.test(\"Response has board ID\", function() {",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"let nameQuery = \"Postman Board \" + (idArray.length + 1)",
+									"",
+									"pm.request.url.query.upsert({",
+									"    key: \"name\",",
+									"    value: nameQuery",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards?key={{api_key}}&token={{token}}&name=Postman Board&defaultLists=false",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Postman Board"
+								},
+								{
+									"key": "defaultLists",
+									"value": "false",
+									"description": "Determines whether to add the default set of lists to a board (To Do, Doing, Done). It is ignored if idBoardSource is provided."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get lists on a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response is an array\", () => {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\")",
+									"    let listArray = []",
+									"    if(pm.response.json().length > 0) {",
+									"        for(let i = 0; i < pm.response.json().length; i++) {",
+									"            listArray.push(pm.response.json()[i].id)",
+									"        }",
+									"        pm.collectionVariables.set(\"list_id_array\", JSON.stringify(listArray))",
+									"    }",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards/:boardId/lists?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards",
+								":boardId",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{last_board_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response contains ID\", function (){",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"list_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.request.url.query.upsert({",
+									"    key: \"name\",",
+									"    value: \"List \" + (idArray.length + 1)",
+									"})",
+									"",
+									"rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists?key={{api_key}}&token={{token}}&name=List&idBoard={{last_board_id}}&pos=bottom",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "List"
+								},
+								{
+									"key": "idBoard",
+									"value": "{{last_board_id}}"
+								},
+								{
+									"key": "pos",
+									"value": "bottom",
+									"description": "Position of the list. top, bottom, or a positive floating point number."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rename a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response in JSON\", pm.response.to.be.json)",
+									"pm.test(\"Renamed correctly\", pm.expect(pm.response.json().name).to.eql(\"Renamed List\"))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists/:listId?key={{api_key}}&token={{token}}&name=Renamed List",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists",
+								":listId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Renamed List",
+									"description": "New name for the list."
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{last_list_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Archive a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200)",
+									"    let listArray = JSON.parse(pm.collectionVariables.get(\"list_id_array\"))",
+									"    listArray.pop()",
+									"    pm.collectionVariables.set(\"list_id_array\", JSON.stringify(listArray))",
+									"})",
+									"pm.test(\"Response in JSON\", pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists/:listId/closed?key={{api_key}}&token={{token}}&value=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists",
+								":listId",
+								"closed"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "value",
+									"value": "true",
+									"description": "Set to true to close (archive) the list"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{last_list_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.pop()",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})",
+									"",
+									"pm.test(\"Response is JSON\", () => pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards/:boardId?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards",
+								":boardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{last_board_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Pre-requisite:\n\n- at least one Trello board is created\n    \n\nSimilarly to \"Boards Management\", we use an array variable to manage the creation and archival of lists."
+		},
+		{
+			"name": "Cards Management",
+			"item": [
+				{
+					"name": "Create empty board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"",
+									"pm.test(\"Response has board ID\", function() {",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"let nameQuery = \"Postman Board \" + (idArray.length + 1)",
+									"",
+									"pm.request.url.query.upsert({",
+									"    key: \"name\",",
+									"    value: nameQuery",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards?key={{api_key}}&token={{token}}&name=Postman Board&defaultLists=false",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Postman Board"
+								},
+								{
+									"key": "defaultLists",
+									"value": "false",
+									"description": "Determines whether to add the default set of lists to a board (To Do, Doing, Done). It is ignored if idBoardSource is provided."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response contains ID\", function (){",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"list_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.request.url.query.upsert({",
+									"    key: \"name\",",
+									"    value: \"List \" + (idArray.length + 1)",
+									"})",
+									"",
+									"rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists?key={{api_key}}&token={{token}}&name=List&idBoard={{last_board_id}}&pos=bottom",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "List"
+								},
+								{
+									"key": "idBoard",
+									"value": "{{last_board_id}}"
+								},
+								{
+									"key": "pos",
+									"value": "bottom",
+									"description": "Position of the list. top, bottom, or a positive floating point number."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all cards in a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"",
+									"pm.test(\"Response is an array\", function() {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\")",
+									"    if(pm.response.json().length > 0) {",
+									"        for(let i = 0; i < pm.response.json().length; i++) {",
+									"            let rawString = pm.collectionVariables.get(\"cards_id_array\")",
+									"            let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"            idArray.push(pm.response.json()[i].id)",
+									"        }",
+									"        pm.collectionVariables.set(\"cards_id_array\", JSON.stringify(idArray))",
+									"    }",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists/:listId/cards?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists",
+								":listId",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{last_list_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"",
+									"pm.test(\"Response has ID\", function() {",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\")",
+									"    let rawString = pm.collectionVariables.get(\"cards_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.push(pm.response.json().id)",
+									"    pm.collectionVariables.set(\"cards_id_array\", JSON.stringify(idArray))",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/cards?key={{api_key}}&token={{token}}&idList={{last_list_id}}&pos=bottom",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "idList",
+									"value": "{{last_list_id}}",
+									"description": "The ID of the list the card should be created in."
+								},
+								{
+									"key": "pos",
+									"value": "bottom",
+									"description": "The position of the new card. top, bottom, or a positive float."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rename a card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Renamed correctly\", pm.expect(pm.response.json().name).to.eql(\"Renamed Card\"))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"cards_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_card_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/cards/:cardId?key={{api_key}}&token={{token}}&name=Renamed Card",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Renamed Card",
+									"description": "The new name for the card."
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{last_card_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200)",
+									"    let idArray = JSON.parse(pm.collectionVariables.get(\"cards_id_array\"))",
+									"    idArray.pop()",
+									"    pm.collectionVariables.set(\"cards_id_array\", JSON.stringify(idArray))",
+									"})",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"cards_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_card_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/cards/:cardId?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{last_card_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Archive all cards in a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    pm.collectionVariables.set(\"cards_id_array\", [])",
+									"    pm.collectionVariables.set(\"last_card_id\", \"\")",
+									"})",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists/:listId/archiveAllCards?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists",
+								":listId",
+								"archiveAllCards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{last_list_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Archive a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200)",
+									"    let listArray = JSON.parse(pm.collectionVariables.get(\"list_id_array\"))",
+									"    listArray.pop()",
+									"    pm.collectionVariables.set(\"list_id_array\", JSON.stringify(listArray))",
+									"})",
+									"pm.test(\"Response in JSON\", pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"list_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_list_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/lists/:listId/closed?key={{api_key}}&token={{token}}&value=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"lists",
+								":listId",
+								"closed"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "value",
+									"value": "true",
+									"description": "Set to true to close (archive) the list"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{last_list_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"    let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"    idArray.pop()",
+									"    pm.collectionVariables.set(\"board_id_array\", JSON.stringify(idArray))",
+									"})",
+									"",
+									"pm.test(\"Response is JSON\", () => pm.response.to.be.json)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let rawString = pm.collectionVariables.get(\"board_id_array\")",
+									"let idArray = rawString == \"\" ? [] : JSON.parse(rawString)",
+									"pm.collectionVariables.set(\"last_board_id\", idArray[idArray.length - 1])"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/1/boards/:boardId?key={{api_key}}&token={{token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"1",
+								"boards",
+								":boardId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{last_board_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Pre-requisite:\n\n- at least one Trello board is created\n    \n- at least one list is created\n    \n\nJust like \"Boards Management\" and \"Lists Management\", we use an array variable to manage the creation and deletion of cards."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_key",
+			"value": "FIX ME via https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "token",
+			"value": "FIX ME via https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "base_url",
+			"value": "https://api.trello.com",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "board_id_array",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "last_board_id",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "list_id_array",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "last_list_id",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "cards_id_array",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "last_card_id",
+			"value": "",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		}
+	]
+}
