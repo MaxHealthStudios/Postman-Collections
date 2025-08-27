@@ -1,0 +1,782 @@
+{
+	"info": {
+		"_postman_id": "20b98fef-2d46-42d6-938d-6ecb33f49035",
+		"name": "NASA API",
+		"description": "In this collection I test the \"Picture/s of the Day\" functionalities of NASA's API. You'll find lots of intersting pre and post-request scripts around dates (YYYY-MM-DD) manipulation and assertion.\n\n[https://api.nasa.gov/](https://api.nasa.gov/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41957911"
+	},
+	"item": [
+		{
+			"name": "Happy Path",
+			"item": [
+				{
+					"name": "Picture of the Day",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response date is correct\", function(){",
+									"    pm.expect(pm.response.json()).to.have.property(\"date\")",
+									"    let formattedDate = new Date().toISOString().split(\"T\")[0]",
+									"    pm.expect(pm.response.json().date).to.equal(formattedDate)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Picture of Specific Date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response date is correct\", function(){",
+									"    pm.expect(pm.response.json()).to.have.property(\"date\")",
+									"    let date = pm.request.url.query.get(\"date\")",
+									"    pm.expect(pm.response.json().date).to.equal(date)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&date=1999-08-26",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "date",
+									"value": "1999-08-26",
+									"description": "The date of the APOD image to retrieve. Default: \"today\" or YYYY-MM-DD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pictures within Date Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"const jsonData = pm.response.json()",
+									"pm.test(\"Response is an array\", pm.expect(jsonData).to.be.an(\"array\"))",
+									"pm.test(\"Array length is correct\", function(){",
+									"    const startDate = new Date(pm.request.url.query.get(\"start_date\"))",
+									"    const endDate = new Date(pm.request.url.query.get(\"end_date\"))",
+									"    const difInMilisecs = endDate - startDate",
+									"    const difInDays = difInMilisecs / (1000 * 60 * 60 * 24) + 1",
+									"    pm.expect(jsonData.length).to.equal(difInDays)",
+									"})",
+									"pm.test(\"First picture date is correct\", pm.expect(jsonData[0].date).to.equal(pm.request.url.query.get(\"start_date\")))",
+									"pm.test(\"Last picture date is correct\", pm.expect(jsonData[jsonData.length-1].date).to.equal(pm.request.url.query.get(\"end_date\")))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&start_date=2025-07-01&end_date=2025-08-25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "start_date",
+									"value": "2025-07-01",
+									"description": "The start of a date range, when requesting date for a range of dates. Cannot be used with date."
+								},
+								{
+									"key": "end_date",
+									"value": "2025-08-25",
+									"description": "The end of the date range, when used with start_date."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))",
+									"pm.test(\"Array length is correct\", pm.expect(pm.response.json().length).to.equal(parseInt(pm.request.url.query.get(\"count\"))))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "25",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Negative Tests",
+			"item": [
+				{
+					"name": "Picture of the Day (Invalid API Key)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx\", pm.expect(pm.response.code).be.within(400, 499))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key=totallyCorrectKey",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "totallyCorrectKey",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Picture of Specific Date (Tomorrow)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx\", pm.expect(pm.response.code).to.be.within(400, 499))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let tomorrow = new Date()//today",
+									"tomorrow.setDate(tomorrow.getDate() + 1)//adding one day",
+									"",
+									"pm.request.url.query.upsert({",
+									"    key: \"date\",",
+									"    value: tomorrow.toISOString().split(\"T\")[0]//keeping only the YYYY-MM-DD format",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&date=changed in pre-request script",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "date",
+									"value": "changed in pre-request script"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pictures within Date Range (start_date > end_date)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx\", pm.expect(pm.response.code).be.within(400, 499))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const startDate = new Date()",
+									"let endDate = new Date()",
+									"endDate.setDate(endDate.getDate() - 5)",
+									"",
+									"const queryParams = [",
+									"    {key: \"start_date\", value: startDate.toISOString().split(\"T\")[0]},",
+									"    {key: \"end_date\", value: endDate.toISOString().split(\"T\")[0]}",
+									"]",
+									"",
+									"for(let i = 0; i < queryParams.length; i++){",
+									"    pm.request.url.query.upsert(queryParams[i])",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&start_date=changed in pre-request script&end_date=changed in pre-request script",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "start_date",
+									"value": "changed in pre-request script"
+								},
+								{
+									"key": "end_date",
+									"value": "changed in pre-request script"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures (Invalid number)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx/5xx\", pm.expect(pm.response.code).to.be.greaterThanOrEqual(400))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=invalid",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "invalid",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures (no number)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx/5xx\", pm.expect(pm.response.code).to.be.greaterThanOrEqual(400))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BVA",
+			"item": [
+				{
+					"name": "Specific Number of Pictures (0)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx\", pm.expect(pm.response.code).within(400, 499))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "0",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))",
+									"pm.test(\"Array length is correct\", pm.expect(pm.response.json().length).to.equal(parseInt(pm.request.url.query.get(\"count\"))))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "1",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures (100)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+									"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+									"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))",
+									"pm.test(\"Array length is correct\", pm.expect(pm.response.json().length).to.equal(parseInt(pm.request.url.query.get(\"count\"))))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "100",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Number of Pictures (101)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 4xx\", pm.expect(pm.response.code).within(400, 499))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/planetary/apod?api_key={{api_key}}&count=101",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"planetary",
+								"apod"
+							],
+							"query": [
+								{
+									"key": "api_key",
+									"value": "{{api_key}}",
+									"description": "You can get an API key via email from https://api.nasa.gov/#signUp"
+								},
+								{
+									"key": "count",
+									"value": "101",
+									"description": "If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date."
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "There's a request that gives a speficied number of random pictures. The \"count\" parameter must be between 1 and 100 inclusively."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://api.nasa.gov"
+		},
+		{
+			"key": "api_key",
+			"value": "FIX ME via https://api.nasa.gov/#signUp"
+		}
+	]
+}
