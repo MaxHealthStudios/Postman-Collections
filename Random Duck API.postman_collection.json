@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "cee5bfdc-381b-4772-b6b3-c86c47435acf",
+		"name": "Random Duck API",
+		"description": "[https://random-d.uk/api?utm_source=chatgpt.com](https://random-d.uk/api?utm_source=chatgpt.com)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41957911"
+	},
+	"item": [
+		{
+			"name": "Get random duck image",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+							"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+							"pm.test(\"Response is correct\", function() {",
+							"    let jsonData = pm.response.json()",
+							"    pm.expect(jsonData).to.have.property(\"message\")",
+							"    pm.expect(jsonData.message).to.be.a(\"string\")",
+							"    pm.expect(jsonData).to.have.property(\"url\")",
+							"    let imageFormat = jsonData.url.split(\".\")",
+							"    imageFormat = imageFormat[imageFormat.length - 1]",
+							"    pm.expect([\"jpg\", \"gif\"]).to.include(imageFormat)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/random",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"random"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://random-d.uk/api",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "gif",
+			"value": "FIX ME via 'List all images'",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "jpg",
+			"value": "FIX ME via 'List all images'",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		}
+	]
+}
