@@ -1,0 +1,145 @@
+{
+	"info": {
+		"_postman_id": "4d391704-c317-4d1f-b57b-a63b342e1975",
+		"name": "Digimon API",
+		"description": "[https://digimon-api.vercel.app/](https://digimon-api.vercel.app/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41957911"
+	},
+	"item": [
+		{
+			"name": "Get All Digimon",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", pm.response.to.have.status(200))",
+							"pm.test(\"Response in JSON\", pm.response.to.be.json)",
+							"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))",
+							"pm.test(\"Response is correct\", function(){",
+							"    let jsonData = pm.response.json()",
+							"    for (let i = 0; i < jsonData.length; i++) {",
+							"        pm.expect(jsonData[i]).to.have.property(\"name\")",
+							"        pm.expect(jsonData[i]).to.have.property(\"img\")",
+							"        pm.expect(jsonData[i]).to.have.property(\"level\")",
+							"        pm.expect(jsonData[i].name).to.be.a(\"string\")",
+							"        pm.expect(jsonData[i].img).to.be.a(\"string\")",
+							"        pm.expect(jsonData[i].level).to.be.a(\"string\")",
+							"    }",
+							"",
+							"    pm.collectionVariables.set(\"name\", jsonData[Math.floor(Math.random() * jsonData.length)].name)",
+							"    pm.collectionVariables.set(\"level\", jsonData[Math.floor(Math.random() * jsonData.length)].level)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/digimon",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"digimon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Digimon by Name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is 200 OK\", pm.response.to.have.status(200))",
+							"pm.test(\"Response is JSON\", pm.response.to.be.json)",
+							"pm.test(\"Response is an array\", pm.expect(pm.response.json()).to.be.an(\"array\"))",
+							"pm.test(\"Array length is 1\", pm.expect(pm.response.json().length).to.equal(1))",
+							"pm.test(\"Digimon name is correct\", pm.expect(pm.response.json()[0].name).to.equal(pm.collectionVariables.get(\"name\")))"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/digimon/name/:name",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"digimon",
+						"name",
+						":name"
+					],
+					"variable": [
+						{
+							"key": "name",
+							"value": "{{name}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://digimon-api.vercel.app/api",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "name",
+			"value": "FIX ME via 'Get All Digimon\"",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		},
+		{
+			"key": "level",
+			"value": "FIX ME via 'Get All Digimon\"",
+			"description": {
+				"content": "",
+				"type": "text/plain"
+			}
+		}
+	]
+}
