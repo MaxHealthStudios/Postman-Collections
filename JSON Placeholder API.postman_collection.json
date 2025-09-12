@@ -1,0 +1,51 @@
+{
+	"info": {
+		"_postman_id": "3fdce85a-bdf2-417c-8edc-1277f7128da3",
+		"name": "JSON Placeholder API",
+		"description": "[https://jsonplaceholder.typicode.com/](https://jsonplaceholder.typicode.com/)\n\nPOST, PUT, PATCH, DELETE give fake server responses. You can't perform actual CRUD.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41957911"
+	},
+	"item": [
+		{
+			"name": "Happy Path",
+			"item": []
+		},
+		{
+			"name": "Negative Testing",
+			"item": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://jsonplaceholder.typicode.com"
+		},
+		{
+			"key": "id_array",
+			"value": "FIM ME via 'Get All Posts'"
+		}
+	]
+}
